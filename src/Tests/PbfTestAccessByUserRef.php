@@ -111,8 +111,8 @@ class PbfTestAccessByUserRef extends PbfTestBase {
     // Login as user referenced by Article 2.
     $this->drupalLogin($this->user);
     $this->drupalGet("node/{$this->article2->id()}");
-    $this->assertResponse(403);
-    $this->checkSearchResults('Article', 1);
+    $this->assertResponse(200);
+    $this->checkSearchResults('Article', 2);
 
     $this->drupalGet("node/{$this->article2->id()}/edit");
     $this->assertResponse(403);
@@ -176,7 +176,7 @@ class PbfTestAccessByUserRef extends PbfTestBase {
     $this->drupalGet("node/{$this->article1->id()}");
     $this->assertResponse(200);
     $this->drupalGet("node/{$this->article2->id()}");
-    $this->assertResponse(403);
+    $this->assertResponse(200);
 
   }
 

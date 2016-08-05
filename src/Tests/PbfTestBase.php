@@ -205,6 +205,15 @@ class PbfTestBase extends WebTestBase {
   }
 
   /**
+   * Test base.
+   *
+   * - check there is no articles.
+   */
+  protected function testPbfBaseAccess() {
+
+  }
+
+  /**
    * On the search page, search for a string and assert the expected results.
    *
    * @param string $search_query

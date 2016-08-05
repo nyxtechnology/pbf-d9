@@ -153,6 +153,8 @@ function pbf_node_access_records(NodeInterface $node) {
             // same Pbf field set on this user.
             if ($user_method == 'ref_user') {
               $grants[] = pbf_create_grant($value, $field_name, $priority);
+              // We grant access to the user referenced too.
+              $grants[] = pbf_create_grant($value, PBF_BY_USER_ID, $priority);
             }
           }
           break;

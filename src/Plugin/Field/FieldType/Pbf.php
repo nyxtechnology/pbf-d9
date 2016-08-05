@@ -152,8 +152,9 @@ class Pbf extends EntityReferenceItem {
     if ($target_entity_type_id == 'user') {
       $options = [
         'user' => $this->t('Grant access directly to users referenced'),
-        'ref_user' => $this->t('Grant access to users who reference those users
-         from the field <em>@field_name</em> attached to user entity type',
+        'ref_user' => $this->t('Grant access directly to users referenced and 
+         grant access to users who reference those users from the field 
+         <em>@field_name</em> attached to user entity type',
          ['@field_name' => $field->getName()]),
       ];
       $form['user_method'] = array(
