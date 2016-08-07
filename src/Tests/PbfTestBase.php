@@ -390,8 +390,10 @@ class PbfTestBase extends WebTestBase {
    *
    * @param string $field_name
    *   The field name to create and attach.
+   * @param array $widget_settings
+   *   The widget form settings.
    */
-  protected function attachPbfNodeFields($field_name) {
+  protected function attachPbfNodeFields($field_name, $widget_settings = []) {
     // Add a pbf field to the article content type which reference group.
     $handler_settings = array(
       'target_bundles' => array(
@@ -404,7 +406,7 @@ class PbfTestBase extends WebTestBase {
     $this->createPbfField('user', 'user', $field_name, 'Member of group', 'node', 'default', $handler_settings, -1);
 
     // Set the form display.
-    $settings = [
+    $settings = $widget_settings + [
       'match_operator' => 'CONTAINS',
       'size' => 30,
       'placeholder' => '',

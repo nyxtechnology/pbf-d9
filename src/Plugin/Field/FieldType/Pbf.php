@@ -181,8 +181,14 @@ class Pbf extends EntityReferenceItem {
    * @return array
    *   The list of operations.
    */
-  public static function getOperations() {
-    return self::$operations;
+  public function getOperations() {
+    $operations = [
+      'grant_public' => $this->t('Public'),
+      'grant_view' => $this->t('Grant View'),
+      'grant_update' => $this->t('Grant Update'),
+      'grant_delete' => $this->t('Grant Delete'),
+    ];
+    return $operations;
   }
 
   /**

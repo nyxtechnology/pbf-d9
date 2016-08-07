@@ -44,14 +44,21 @@ class PbfFieldWidget extends EntityReferenceAutocompleteWidget {
     $field_definition = $item->getFieldDefinition();
     $field_name = $field_definition->getName();
 
+    $grant_global = $this->getSettings();
+
     foreach ($operations as $key => $label) {
+      $default_value_key = isset($item->{$key}) ? $item->{$key} : NULL;
+      if ($this->getSetting('grant_global')) {
+        $default_value_key = $this->getSetting($key);
+      }
       $element[$key] = [
         '#type' => 'checkbox',
         '#title' => $label,
-        '#default_value' => isset($item->{$key}) ? $item->{$key} : NULL,
+        '#default_value' => $default_value_key,
         '#return_value' => 1,
         '#empty' => 0,
         '#weight' => 2,
+        '#access' => $this->getSetting('grant_global') ? FALSE : TRUE,
       ];
 
       // We hide other $key than grant_public because these keys are not used
@@ -60,7 +67,7 @@ class PbfFieldWidget extends EntityReferenceAutocompleteWidget {
       if ($key != 'grant_public') {
         $element[$key]['#states'] = [
           'invisible' => [
-            ':input[name="'. $field_name . '[' . $delta . '][grant_public]"]' => array('checked' => TRUE),
+            ':input[name="' . $field_name . '[' . $delta . '][grant_public]"]' => array('checked' => TRUE),
           ],
         ];
       }
@@ -79,11 +86,126 @@ class PbfFieldWidget extends EntityReferenceAutocompleteWidget {
       checked, only the node\'s author will can access to the node.'),
       '#attributes' => ['class' => ['description', 'pbf-help']],
       '#weight' => 5,
+      '#access' => $this->getSetting('grant_global') ? FALSE : TRUE,
     ];
 
     $element['#attached']['library'][] = 'pbf/widget';
 
     return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function defaultSettings() {
+    return array(
+      'grant_global' => 0,
+      'grant_public' => 1,
+      'grant_view' => 0,
+      'grant_update' => 0,
+      'grant_delete' => 0,
+    ) + parent::defaultSettings();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $element = parent::settingsForm($form, $form_state);
+    $field_name = $this->fieldDefinition->getName();
+    $field_definition = $this->fieldDefinition;
+
+    $element['grant_global'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Set grant settings generally'),
+      '#default_value' => $this->getSetting('grant_global'),
+      '#return_value' => (int) 1,
+      '#empty' => 0,
+      '#description' => $this->t('By checking this option, you can set grant settings for every entities. Grant settings will be then hide in the form element'),
+    );
+    $element['grant_public'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Public'),
+      '#default_value' => $this->getSetting('grant_public'),
+      '#return_value' => (int) 1,
+      '#empty' => 0,
+      '#states' => array(
+        'visible' => array(
+          'input[name="fields[' . $field_name . '][settings_edit_form][settings][grant_global]"]' => array('checked' => TRUE),
+        ),
+      ),
+    ];
+    $element['grant_view'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Grant view'),
+      '#default_value' => $this->getSetting('grant_view'),
+      '#return_value' => (int) 1,
+      '#empty' => 0,
+      '#states' => array(
+        'visible' => array(
+          'input[name="fields[' . $field_name . '][settings_edit_form][settings][grant_global]"]' => array('checked' => TRUE),
+        ),
+      ),
+    ];
+    $element['grant_update'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Grant update'),
+      '#default_value' => $this->getSetting('grant_update'),
+      '#return_value' => (int) 1,
+      '#empty' => 0,
+      '#states' => array(
+        'visible' => array(
+          'input[name="fields[' . $field_name . '][settings_edit_form][settings][grant_global]"]' => array('checked' => TRUE),
+        ),
+      ),
+    ];
+    $element['grant_delete'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Grant delete'),
+      '#default_value' => $this->getSetting('grant_delete'),
+      '#return_value' => (int) 1,
+      '#empty' => 0,
+      '#states' => array(
+        'visible' => array(
+          'input[name="fields[' . $field_name . '][settings_edit_form][settings][grant_global]"]' => array('checked' => TRUE),
+        ),
+      ),
+    ];
+
+    $element['#attached']['library'][] = 'pbf/widget';
+    return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsSummary() {
+    $summary = array();
+
+    $operators = $this->getMatchOperatorOptions();
+    $summary[] = t('Autocomplete matching: @match_operator', array('@match_operator' => $operators[$this->getSetting('match_operator')]));
+    $summary[] = t('Textfield size: @size', array('@size' => $this->getSetting('size')));
+    $placeholder = $this->getSetting('placeholder');
+    if (!empty($placeholder)) {
+      $summary[] = t('Placeholder: @placeholder', array('@placeholder' => $placeholder));
+    }
+    else {
+      $summary[] = t('No placeholder');
+    }
+    if ($this->getSetting('grant_global')) {
+      $summary[] = t('Grants access set generally');
+      $summary[] = t('Public:@public, Grant view:@view, Grant update:@update, Grant delete:@delete', [
+        '@public' => $this->getSetting('grant_public'),
+        '@view' => $this->getSetting('grant_view'),
+        '@update' => $this->getSetting('grant_update'),
+        '@delete' => $this->getSetting('grant_delete'),
+      ]);
+    }
+    else {
+      $summary[] = t('Grants access set on each node');
+    }
+
+    return $summary;
   }
 
 }
