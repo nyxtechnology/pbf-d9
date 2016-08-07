@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * The Pbf field item list.
- */
-
 namespace Drupal\pbf\Plugin\Field;
 
 use Drupal\Core\Field\EntityReferenceFieldItemList;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * General setup and helper functions.
- */
-
 namespace Drupal\pbf\Tests;
 
 use Drupal\field\Entity\FieldConfig;

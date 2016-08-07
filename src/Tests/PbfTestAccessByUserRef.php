@@ -1,12 +1,6 @@
 <?php
 
-/**
- * @file
- * Test Pbf field with user referenced (friend feature).
- */
-
 namespace Drupal\pbf\Tests;
-
 
 /**
  * Test access permissions with Pbf field with user referenced.

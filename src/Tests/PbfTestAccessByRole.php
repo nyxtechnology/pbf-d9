@@ -1,12 +1,6 @@
 <?php
 
-/**
- * @file
- * Test Pbf field with role referenced.
- */
-
 namespace Drupal\pbf\Tests;
-
 
 /**
  * Test access permissions with Pbf field which reference role.

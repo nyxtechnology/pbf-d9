@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * The default Pbf Field Formatter.
- */
-
 namespace Drupal\pbf\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceLabelFormatter;
@@ -21,6 +16,5 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceLabelFormatter;
  * )
  */
 class PbfFieldFormatter extends EntityReferenceLabelFormatter {
-
 
 }

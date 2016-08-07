@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Basic tests on node with standard permissions.
- */
-
 namespace Drupal\pbf\Tests;
 
 /**

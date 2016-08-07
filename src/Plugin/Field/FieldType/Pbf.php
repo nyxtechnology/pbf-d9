@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * The Pbf field type.
- */
-
 namespace Drupal\pbf\Plugin\Field\FieldType;
 
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
@@ -12,7 +7,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
-
 
 /**
  * Plugin implementation of the 'pbf' field type.

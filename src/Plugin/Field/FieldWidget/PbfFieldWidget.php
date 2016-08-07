@@ -1,17 +1,11 @@
 <?php
 
-/**
- * @file
- * The default Pbf field widget.
- */
-
 namespace Drupal\pbf\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
 use Drupal\user\UserInterface;
-
 
 /**
  * Plugin implementation of the 'pbf_field_widget' widget.
