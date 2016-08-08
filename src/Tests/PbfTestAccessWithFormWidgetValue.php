@@ -56,7 +56,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     $this->assertFieldByXPath('//table[@id="field-display-overview"]//tr[@id="field-pbf-group"]/td[1]', 'Content of group', 'Field appears in the Manage form display page.');
     $this->assertFieldByName('fields[field_pbf_group][type]', 'pbf_widget', 'The expected widget is selected.');
     // Check that grants are not set with the form widget settings.
-    $this->assertText(t('Grants access set on each node'));
+    $this->assertText(t('Grants access set on each node. Default grant access are :'));
 
     // Check that the field appears in the overview manage display page.
     $this->drupalGet($bundle_path . '/display');
@@ -104,7 +104,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     // Check that grants are set generally on the form widget settings.
     $this->drupalLogin($this->adminUser);
     $this->drupalGet($bundle_path . '/form-display');
-    $this->assertText(t('Grants access set generally'));
+    $this->assertText(t('Grants access set generally. Grant access used are :'));
 
     // Save articles for acquire new rights access.
     $edit = [
@@ -158,7 +158,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     // Check that grants are set generally on the form widget settings.
     $this->drupalLogin($this->adminUser);
     $this->drupalGet($bundle_path . '/form-display');
-    $this->assertText(t('Grants access set generally'));
+    $this->assertText(t('Grants access set generally. Grant access used are :'));
     $this->assertText(t('Grant view:1'));
 
     // Save articles for acquire new rights access.
@@ -245,7 +245,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     // Check that grants are set generally on the form widget settings.
     $this->drupalLogin($this->adminUser);
     $this->drupalGet($bundle_path . '/form-display');
-    $this->assertText(t('Grants access set generally'));
+    $this->assertText(t('Grants access set generally. Grant access used are :'));
     $this->assertText(t('Grant update:1'));
     $this->assertText(t('Grant delete:1'));
 

@@ -41,7 +41,10 @@ class PbfFieldWidget extends EntityReferenceAutocompleteWidget {
     $grant_global = $this->getSettings();
 
     foreach ($operations as $key => $label) {
-      $default_value_key = isset($item->{$key}) ? $item->{$key} : NULL;
+      // If a value has not been yet set, we fetch the default grant access
+      // settings definied in the form settings widget.
+      $default_value_key = isset($item->{$key}) ? $item->{$key} : $this->getSetting($key);
+      // If grant access are set generally, we override the default value.
       if ($this->getSetting('grant_global')) {
         $default_value_key = $this->getSetting($key);
       }
@@ -109,13 +112,17 @@ class PbfFieldWidget extends EntityReferenceAutocompleteWidget {
     $field_name = $this->fieldDefinition->getName();
     $field_definition = $this->fieldDefinition;
 
+    $options = [
+      0 => $this->t('Set default grant access per node'),
+      1 => $this->t('Set grant access settings generally'),
+    ];
+
     $element['grant_global'] = array(
-      '#type' => 'checkbox',
-      '#title' => $this->t('Set grant settings generally'),
+      '#type' => 'radios',
+      '#title' => $this->t('Set default grant access settings per node or define them generally'),
       '#default_value' => $this->getSetting('grant_global'),
-      '#return_value' => (int) 1,
-      '#empty' => 0,
-      '#description' => $this->t('By checking this option, you can set grant settings for every entities. Grant settings will be then hide in the form element'),
+      '#options' => $options,
+      '#description' => $this->t('You can set the default grant access settings for each node. Otherwise, you can set grant settings generally for every entities. Grant access settings will be then hide to users in the form element'),
     );
     $element['grant_public'] = [
       '#type' => 'checkbox',
@@ -187,17 +194,17 @@ class PbfFieldWidget extends EntityReferenceAutocompleteWidget {
       $summary[] = t('No placeholder');
     }
     if ($this->getSetting('grant_global')) {
-      $summary[] = t('Grants access set generally');
-      $summary[] = t('Public:@public, Grant view:@view, Grant update:@update, Grant delete:@delete', [
-        '@public' => $this->getSetting('grant_public'),
-        '@view' => $this->getSetting('grant_view'),
-        '@update' => $this->getSetting('grant_update'),
-        '@delete' => $this->getSetting('grant_delete'),
-      ]);
+      $summary[] = t('Grants access set generally. Grant access used are :');
     }
     else {
-      $summary[] = t('Grants access set on each node');
+      $summary[] = t('Grants access set on each node. Default grant access are :');
     }
+    $summary[] = t('Public:@public, Grant view:@view, Grant update:@update, Grant delete:@delete', [
+      '@public' => $this->getSetting('grant_public'),
+      '@view' => $this->getSetting('grant_view'),
+      '@update' => $this->getSetting('grant_update'),
+      '@delete' => $this->getSetting('grant_delete'),
+    ]);
 
     return $summary;
   }
