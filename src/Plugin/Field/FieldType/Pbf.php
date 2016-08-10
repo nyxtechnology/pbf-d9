@@ -2,11 +2,14 @@
 
 namespace Drupal\pbf\Plugin\Field\FieldType;
 
+use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
+use Drupal\Core\TypedData\DataDefinitionInterface;
+use Drupal\Core\TypedData\TypedDataInterface;
 
 /**
  * Plugin implementation of the 'pbf' field type.
@@ -22,12 +25,32 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
  */
 class Pbf extends EntityReferenceItem {
 
+  /**
+   * The access rights operations.
+   *
+   * @var array
+   */
   protected static $operations = [
     'grant_public' => 'Public',
     'grant_view' => 'Grant View',
     'grant_update' => 'Grant Update',
     'grant_delete' => 'Grant Delete',
   ];
+
+  /**
+   * The Entity Field Manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManager
+   */
+  protected $entityFieldManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(DataDefinitionInterface $definition, $name = NULL, TypedDataInterface $parent = NULL) {
+    parent::__construct($definition, $name, $parent);
+    $this->entityFieldManager = \Drupal::service('entity_field.manager');
+  }
 
   /**
    * {@inheritdoc}
@@ -111,6 +134,8 @@ class Pbf extends EntityReferenceItem {
     /** @var \Drupal\field\FieldConfigInterface $field */
     $field = $form_state->getFormObject()->getEntity();
     $entity_type = $field->getTargetEntityTypeId();
+    $bundle = $field->getTargetBundle();
+    $target_entity_type_id = $field->getSetting('target_type');
 
     // No need to display theses options that are only relevant on Node entity
     // type.
@@ -142,7 +167,6 @@ class Pbf extends EntityReferenceItem {
 
     );
 
-    $target_entity_type_id = $field->getSetting('target_type');
     if ($target_entity_type_id == 'user') {
       $options = [
         'user' => $this->t('Grant access directly to users referenced'),
@@ -166,7 +190,59 @@ class Pbf extends EntityReferenceItem {
       );
     }
 
+
+    $fields = $this->getPbfEligibleFields($target_entity_type_id, $bundle);
+
     return $form;
+  }
+
+  /**
+   * Return the pbf fields eligible to be synchronized.
+   *
+   * Eligible fields we can synchronize are those whose target bundle match
+   * the bundle of the current field.
+   *
+   * @return array
+   *   The list pbf fields
+   */
+  private function getPbfEligibleFields($entity_type_id, $target_bundle) {
+    $fields = $this->entityFieldManager->getFieldMapByFieldType('pbf');
+    if (!isset($fields[$entity_type_id])) {
+      return [];
+    }
+    $return = [];
+    foreach ($fields[$entity_type_id] as $field_name => $field_data) {
+      foreach ($field_data['bundles'] as $bundle) {
+        $instance = $this->entityFieldManager
+          ->getFieldDefinitions($entity_type_id, $bundle)[$field_name];
+
+        if ($instance instanceof FieldConfigInterface) {
+          $instance_target_bundle = $this->getTargetBundles($instance);
+          if (in_array($target_bundle, $instance_target_bundle)) {
+            $return[$field_name] = $field_data;
+          }
+        }
+      }
+    }
+    return $return;
+  }
+
+  /**
+   * Get the target bundle of a Field Pbf.
+   *
+   * @param \Drupal\Core\Field\FieldConfigInterface $field
+   *   The field instance on which we want the target bundles.
+   *
+   * @return array
+   *   The list of target bundles.
+   */
+  private function getTargetBundles(FieldConfigInterface $field) {
+    $target_bundles = [];
+    $settings = $field->getSettings();
+    if (isset($settings['handler_settings']['target_bundles'])) {
+      $target_bundles = $settings['handler_settings']['target_bundles'];
+    }
+    return $target_bundles;
   }
 
   /**
