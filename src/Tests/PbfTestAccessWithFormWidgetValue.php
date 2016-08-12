@@ -265,7 +265,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     $this->drupalPostForm('/node/' . $this->article2->id() . '/edit', $edit, t('Save and keep published'));
     $this->assertText(t('has been updated'));
     $this->assertResponse(200);
-    $this->drupalGet("node/{$this->article1->id()}");
+    $this->drupalGet("node/{$this->article2->id()}");
     $this->assertLink($this->group1->getTitle());
 
     $this->drupalLogin($this->normalUser);
