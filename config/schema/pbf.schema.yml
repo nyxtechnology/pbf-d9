@@ -34,6 +34,15 @@ field.field_settings.pbf:
     user_method:
       type: string
       label: 'Method to grant access for user referenced'
+    synchronized_with:
+      type: string
+      label: 'Field synchronize an another field'
+    synchronized_by:
+      type: string
+      label: 'Field is synchronized by an another field'
+    synchronized_from_target:
+      type: integer
+      label: 'Targeted field can synchronize source field'
 
 field.value.pbf:
   type: mapping

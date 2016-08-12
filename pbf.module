@@ -251,3 +251,109 @@ function pbf_entity_insert(EntityInterface $entity) {
     $config->save();
   }
 }
+
+/**
+ * Implements hook_entity_update().
+ */
+function pbf_entity_update(EntityInterface $entity) {
+  if ($entity instanceof FieldConfigInterface) {
+
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function pbf_field_config_insert(FieldConfigInterface $entity) {
+  if ($entity->getType() == 'pbf' && $entity->getSetting('synchronized_with')) {
+
+    $entityTypeManager = \Drupal::entityTypeManager()->getStorage('field_config');
+    /** @var \Drupal\field\FieldConfigInterface $field_to_synchronize */
+    $field_to_synchronize = $entityTypeManager->load($entity->getSetting('synchronized_with'));
+    if ($field_to_synchronize) {
+      $field_to_synchronize->set('synchronized_by', $entity->getSetting('synchronized_with'))->save();
+      if ($entity->getSetting('synchronized_from_target')) {
+        $field_to_synchronize->set('synchronized_from_target', $entity->getSetting('synchronized_from_target'))->save();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function pbf_field_config_update(FieldConfigInterface $entity) {
+  if ($entity->getType() == 'pbf') {
+    $original = $entity->original;
+    $entityTypeManager = \Drupal::entityTypeManager()->getStorage('field_config');
+
+    // If no change on the field synchronized, and if there is a field selected,
+    // we must care about the synchronized_from_target option.
+    if ($entity->getSetting('synchronized_with') == $original->getSetting('synchronized_with') && $entity->getSetting('synchronized_with')) {
+      if ($entity->getSetting('synchronized_from_target') !== $original->getSetting('synchronized_from_target')) {
+        $field_to_synchronize = $entityTypeManager->load($entity->getSetting('synchronized_with'));
+        if ($field_to_synchronize) {
+          $field_to_synchronize->setSetting('synchronized_from_target', $entity->getSetting('synchronized_from_target'))->save();
+        }
+      }
+      else {
+        return;
+      }
+    }
+
+    // If a new field is selected and there is no synchronization before.
+    if ($entity->getSetting('synchronized_with') && empty($original->getSetting('synchronized_with'))) {
+      /** @var \Drupal\field\FieldConfigInterface $field_to_synchronize */
+      $field_to_synchronize = $entityTypeManager->load($entity->getSetting('synchronized_with'));
+      if ($field_to_synchronize) {
+        $field_to_synchronize->setSetting('synchronized_by', $entity->getSetting('synchronized_with'))
+          ->setSetting('synchronized_from_target', $entity->getSetting('synchronized_from_target'))
+          ->save();
+      }
+    }
+
+    // If the field selected is removed and no synchronization is enabled.
+    if (empty($entity->getSetting('synchronized_with')) && $original->getSetting('synchronized_with')) {
+      /** @var \Drupal\field\FieldConfigInterface $field_to_synchronize */
+      $field_to_synchronize = $entityTypeManager->load($original->getSetting('synchronized_with'));
+      if ($field_to_synchronize) {
+        $field_to_synchronize->setSetting('synchronized_by', '')
+          ->setSetting('synchronized_from_target', 0)
+          ->save();
+      }
+    }
+
+    // If a new field is selected and there is another field selected before.
+    if ($entity->getSetting('synchronized_with') && $original->getSetting('synchronized_with' &&
+        $entity->getSetting('synchronized_with') !== $original->getSetting('synchronized_with'))) {
+      /** @var \Drupal\field\FieldConfigInterface $new_field_to_synchronize */
+      $new_field_to_synchronize = $entityTypeManager->load($entity->getSetting('synchronized_with'));
+      if ($new_field_to_synchronize) {
+        $new_field_to_synchronize->setSetting('synchronized_by', $entity->getSetting('synchronized_with'))
+          ->setSetting('synchronized_from_target', $entity->getSetting('synchronized_from_target'))
+          ->save();
+      }
+      $old_field_to_synchronize = $entityTypeManager->load($original->getSetting('synchronized_with'));
+      if ($old_field_to_synchronize) {
+        $old_field_to_synchronize->setSetting('synchronized_by', '')
+          ->setSetting('synchronized_from_target', 0)
+          ->save();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function pbf_field_config_delete(FieldConfigInterface $entity) {
+  if ($entity->getType() == 'pbf' && $entity->getSetting('synchronized_with')) {
+    $entityTypeManager = \Drupal::entityTypeManager()->getStorage('field_config');
+    /** @var \Drupal\field\FieldConfigInterface $field_to_synchronize */
+    $field_to_synchronize = $entityTypeManager->load($entity->getSetting('synchronized_with'));
+    if ($field_to_synchronize) {
+      $field_to_synchronize->set('synchronized_by', '')->save();
+      $field_to_synchronize->set('synchronized_from_target', 0)->save();
+    }
+  }
+}

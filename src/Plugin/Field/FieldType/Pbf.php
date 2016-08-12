@@ -59,6 +59,9 @@ class Pbf extends EntityReferenceItem {
     return array(
       'priority' => 0,
       'user_method' => 'user',
+      'synchronized_with' => '',
+      'synchronized_from_target' => 0,
+      'synchronized_by' => '',
     ) + parent::defaultFieldSettings();
   }
 
@@ -136,6 +139,53 @@ class Pbf extends EntityReferenceItem {
     $entity_type = $field->getTargetEntityTypeId();
     $bundle = $field->getTargetBundle();
     $target_entity_type_id = $field->getSetting('target_type');
+    $cardinality = $field->getFieldStorageDefinition()->getCardinality();
+
+    $form['synchronization'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Synchronization'),
+      '#description' => $this->t('EXPERIMENTAL - UNDER ACTIVE DEVELOPMENT'),
+      '#open' => TRUE,
+      '#tree' => TRUE,
+      '#process' => [[get_class($this), 'formProcessMergeParent']],
+      '#weight' => 10,
+    ];
+    $form['synchronization']['synchronized_by'] = [
+      '#type' => 'value',
+      '#value' => $field->getSetting('synchronized_by') ? $field->getSetting('synchronized_by') : '',
+    ];
+
+    if ($cardinality === FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
+      // Only fields attached to user entity type can be synchronized by.
+      if ($field->getSetting('synchronized_by') && empty($field->getSetting('synchronized_from_target'))) {
+        $form['synchronization']['info'] = [
+          '#markup' => $this->t('Field synchronized by @field_id', ['@field_id' => $field->getSetting('synchronized_by')]),
+          '#prefix' => '<p>',
+          '#suffix' => '</p>',
+        ];
+      }
+      elseif ($field->getSetting('synchronized_by') && $field->getSetting('synchronized_from_target')) {
+        $form['synchronization']['info'] = [
+          '#markup' => $this->t('Field synchronized by @field_id and allowed to synchronize it', ['@field_id' => $field->getSetting('synchronized_by')]),
+          '#prefix' => '<p>',
+          '#suffix' => '</p>',
+        ];
+      }
+      elseif (empty($field->getSetting('synchronized_by')) && $entity_type == 'user') {
+        $form['synchronization']['info'] = [
+          '#markup' => $this->t('Field no synchronized'),
+          '#prefix' => '<p>',
+          '#suffix' => '</p>',
+        ];
+      }
+    }
+    else {
+      $form['synchronization']['info'] = [
+        '#markup' => $this->t('Only field with an unlimited cardinality can be synchronized'),
+        '#prefix' => '<p>',
+        '#suffix' => '</p>',
+      ];
+    }
 
     // No need to display theses options that are only relevant on Node entity
     // type.
@@ -146,14 +196,15 @@ class Pbf extends EntityReferenceItem {
     // Priority parameter has been removed in Drupal 8, and will not be used
     // except by using Node access priority Module. See
     // https://www.drupal.org/project/napriority
-    $form['priority'] = array(
+    $form['priority'] = [
       '#type' => 'details',
       '#title' => $this->t('Permissions priority'),
       '#open' => TRUE,
       '#tree' => TRUE,
-      '#process' => array(array(get_class($this), 'formProcessMergeParent')),
-    );
-    $form['priority']['priority'] = array(
+      '#process' => [[get_class($this), 'formProcessMergeParent']],
+      '#weight' => 1,
+    ];
+    $form['priority']['priority'] = [
       '#type' => 'number',
       '#title' => $this->t('Priority'),
       '#description' => $this->t('The priority to apply on permissions. 
@@ -164,8 +215,7 @@ class Pbf extends EntityReferenceItem {
       priority is installed. Permissions with the higher priority will be then 
       used.'),
       '#default_value' => $field->getSetting('priority') ? $field->getSetting('priority') : 0,
-
-    );
+    ];
 
     if ($target_entity_type_id == 'user') {
       $options = [
@@ -175,23 +225,54 @@ class Pbf extends EntityReferenceItem {
          <em>@field_name</em> attached to user entity type',
          ['@field_name' => $field->getName()]),
       ];
-      $form['user_method'] = array(
+      $form['user_method'] = [
         '#type' => 'details',
         '#title' => $this->t('Handle permissions for users'),
         '#open' => TRUE,
         '#tree' => TRUE,
-        '#process' => array(array(get_class($this), 'formProcessMergeParent')),
-      );
-      $form['user_method']['user_method'] = array(
+        '#process' => [[get_class($this), 'formProcessMergeParent']],
+        '#weight' => 2,
+      ];
+      $form['user_method']['user_method'] = [
         '#type' => 'radios',
         '#title' => $this->t('Choose method for grant access to users'),
         '#options' => $options,
         '#default_value' => $field->getSetting('user_method') ? $field->getSetting('user_method') : 'user',
-      );
+      ];
+
+      if ($cardinality === FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
+        // We support for referenced user to synchronize them if they have a Pbf
+        // field attached whose target bundle is the current bundle.
+        // We get eligible fields to be synchronized.
+        $fields = $this->getPbfEligibleFields($target_entity_type_id, $bundle);
+        $eligible_fields = [];
+        if ($fields) {
+          foreach ($fields as $field_id => $field_data) {
+            $eligible_fields[$field_id] = $field_data['label'] . ' (' . $field_data['field_name'] . ')';
+          }
+        }
+        $form['synchronization']['synchronized_with'] = [
+          '#type' => 'select',
+          '#title' => $this->t('Select the field attached to users to synchronize'),
+          '#options' => $eligible_fields,
+          "#empty_option" => $this->t('No synchronization'),
+          '#default_value' => $field->getSetting('synchronized_with') ? $field->getSetting('synchronized_with') : [],
+        ];
+
+        $form['synchronization']['synchronized_from_target'] = [
+          '#type' => 'checkbox',
+          '#title' => $this->t('Allow targeted field from users to synchronize this field'),
+          '#default_value' => $field->getSetting('synchronized_from_target') ? $field->getSetting('synchronized_from_target') : 0,
+          '#return_value' => (int) 1,
+          '#empty' => 0,
+          '#states' => [
+            'invisible' => [
+              'select[data-drupal-selector="edit-settings-synchronized-with"]' => ['value' => ''],
+            ],
+          ],
+        ];
+      }
     }
-
-
-    $fields = $this->getPbfEligibleFields($target_entity_type_id, $bundle);
 
     return $form;
   }
@@ -219,7 +300,11 @@ class Pbf extends EntityReferenceItem {
         if ($instance instanceof FieldConfigInterface) {
           $instance_target_bundle = $this->getTargetBundles($instance);
           if (in_array($target_bundle, $instance_target_bundle)) {
-            $return[$field_name] = $field_data;
+            $data['entity_type'] = $instance->getTargetEntityTypeId();
+            $data['bundle'] = $instance->getTargetBundle();
+            $data['label'] = $instance->getLabel();
+            $data['field_name'] = $field_name;
+            $return[$instance->id()] = $data;
           }
         }
       }
