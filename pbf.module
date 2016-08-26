@@ -12,6 +12,7 @@ use Drupal\field\FieldConfigInterface;
 use Drupal\user\RoleInterface;
 use Drupal\user\Entity\User;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 
 define('PBF_BY_ROLE_ID', 'role_id');
 define('PBF_BY_USER_ID', 'user_id');
@@ -229,12 +230,14 @@ function pbf_create_grant($value, $field_name, $priority = 0) {
  */
 function pbf_entity_delete(EntityInterface $entity) {
   $config = \Drupal::configFactory()->getEditable('pbf.settings');
-
   if ($entity instanceof RoleInterface) {
     $roles_gids = $config->get('pbf_roles_gids');
     unset($roles_gids[$entity->id()]);
     $config->set('pbf_roles_gids', $roles_gids);
     $config->save();
+  }
+  if ($entity instanceof FieldableEntityInterface) {
+//    \Drupal::service('pbf.synchronize')->synchronize('delete', $entity);
   }
 }
 
@@ -243,12 +246,14 @@ function pbf_entity_delete(EntityInterface $entity) {
  */
 function pbf_entity_insert(EntityInterface $entity) {
   $config = \Drupal::configFactory()->getEditable('pbf.settings');
-
   if ($entity instanceof RoleInterface) {
     $roles_gids = array_flip($config->get('pbf_roles_gids'));
     $roles_gids[] = $entity->id();
     $config->set('pbf_roles_gids', array_flip($roles_gids));
     $config->save();
+  }
+  if ($entity instanceof FieldableEntityInterface) {
+//    \Drupal::service('pbf.synchronize')->synchronize('insert', $entity);
   }
 }
 
@@ -256,8 +261,8 @@ function pbf_entity_insert(EntityInterface $entity) {
  * Implements hook_entity_update().
  */
 function pbf_entity_update(EntityInterface $entity) {
-  if ($entity instanceof FieldConfigInterface) {
-
+  if ($entity instanceof FieldableEntityInterface) {
+//    \Drupal::service('pbf.synchronize')->synchronize('update', $entity);
   }
 }
 
@@ -271,10 +276,9 @@ function pbf_field_config_insert(FieldConfigInterface $entity) {
     /** @var \Drupal\field\FieldConfigInterface $field_to_synchronize */
     $field_to_synchronize = $entityTypeManager->load($entity->getSetting('synchronized_with'));
     if ($field_to_synchronize) {
-      $field_to_synchronize->set('synchronized_by', $entity->getSetting('synchronized_with'))->save();
-      if ($entity->getSetting('synchronized_from_target')) {
-        $field_to_synchronize->set('synchronized_from_target', $entity->getSetting('synchronized_from_target'))->save();
-      }
+      $field_to_synchronize->set('synchronized_by', $entity->id())
+        ->set('synchronized_from_target', $entity->getSetting('synchronized_from_target'))
+        ->save();
     }
   }
 }
@@ -306,7 +310,7 @@ function pbf_field_config_update(FieldConfigInterface $entity) {
       /** @var \Drupal\field\FieldConfigInterface $field_to_synchronize */
       $field_to_synchronize = $entityTypeManager->load($entity->getSetting('synchronized_with'));
       if ($field_to_synchronize) {
-        $field_to_synchronize->setSetting('synchronized_by', $entity->getSetting('synchronized_with'))
+        $field_to_synchronize->setSetting('synchronized_by', $entity->id())
           ->setSetting('synchronized_from_target', $entity->getSetting('synchronized_from_target'))
           ->save();
       }
@@ -324,12 +328,12 @@ function pbf_field_config_update(FieldConfigInterface $entity) {
     }
 
     // If a new field is selected and there is another field selected before.
-    if ($entity->getSetting('synchronized_with') && $original->getSetting('synchronized_with' &&
-        $entity->getSetting('synchronized_with') !== $original->getSetting('synchronized_with'))) {
+    if ($entity->getSetting('synchronized_with') && $original->getSetting('synchronized_with') &&
+        $entity->getSetting('synchronized_with') !== $original->getSetting('synchronized_with')) {
       /** @var \Drupal\field\FieldConfigInterface $new_field_to_synchronize */
       $new_field_to_synchronize = $entityTypeManager->load($entity->getSetting('synchronized_with'));
       if ($new_field_to_synchronize) {
-        $new_field_to_synchronize->setSetting('synchronized_by', $entity->getSetting('synchronized_with'))
+        $new_field_to_synchronize->setSetting('synchronized_by', $entity->id())
           ->setSetting('synchronized_from_target', $entity->getSetting('synchronized_from_target'))
           ->save();
       }

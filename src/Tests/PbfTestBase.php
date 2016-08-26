@@ -64,7 +64,7 @@ class PbfTestBase extends WebTestBase {
    *
    * @var \Drupal\user\Entity\User
    */
-  protected $user;
+  protected $otherUser;
 
   /**
    * Entity form display.
@@ -184,6 +184,7 @@ class PbfTestBase extends WebTestBase {
     ];
 
     $this->normalUser = $this->drupalCreateUser($this->permissions);
+    $this->otherUser = $this->drupalCreateUser($this->permissions);
 
     // Create articles nodes.
     $this->group1 = $this->drupalCreateNode(['type' => 'group', 'title' => 'Group 1']);
@@ -247,13 +248,17 @@ class PbfTestBase extends WebTestBase {
    *   The method used for granting access to user.
    * @param int $priority
    *   The priority access.
+   * @param string $synchronized_with
+   *   The field is synchronized with another Pbf field.
+   * @param int $synchronized_from_target
+   *   The synchronized targeted field can synchronize the source.
    *
    * @return \Drupal\field\Entity\FieldConfig $field
    *   The field created or loaded.
    *
    * @see \Drupal\Core\Entity\Plugin\EntityReferenceSelection\SelectionBase::buildConfigurationForm()
    */
-  protected function createPbfField($entity_type, $bundle, $field_name, $field_label, $target_entity_type, $selection_handler = 'default', $selection_handler_settings = array(), $cardinality = 1, $user_method = 'user', $priority = 0) {
+  protected function createPbfField($entity_type, $bundle, $field_name, $field_label, $target_entity_type, $selection_handler = 'default', $selection_handler_settings = array(), $cardinality = -1, $user_method = 'user', $priority = 0, $synchronized_with = '', $synchronized_from_target = 0) {
     // Look for or add the specified field to the requested entity bundle.
     if (!FieldStorageConfig::loadByName($entity_type, $field_name)) {
       FieldStorageConfig::create(array(
@@ -277,6 +282,8 @@ class PbfTestBase extends WebTestBase {
           'handler_settings' => $selection_handler_settings,
           'priority' => $priority,
           'user_method' => $user_method,
+          'synchronized_with' => $synchronized_with,
+          'synchronized_form_target' => $synchronized_from_target,
         ),
       ))->save();
     }

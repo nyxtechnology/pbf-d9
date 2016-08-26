@@ -173,7 +173,14 @@ class Pbf extends EntityReferenceItem {
       }
       elseif (empty($field->getSetting('synchronized_by')) && $entity_type == 'user') {
         $form['synchronization']['info'] = [
-          '#markup' => $this->t('Field no synchronized'),
+          '#markup' => $this->t('Field not synchronized'),
+          '#prefix' => '<p>',
+          '#suffix' => '</p>',
+        ];
+      }
+      elseif ($target_entity_type_id !== 'user') {
+        $form['synchronization']['info'] = [
+          '#markup' => $this->t('Field which reference user entity type can be synchronized if eligible fields are found.'),
           '#prefix' => '<p>',
           '#suffix' => '</p>',
         ];
@@ -297,7 +304,9 @@ class Pbf extends EntityReferenceItem {
         $instance = $this->entityFieldManager
           ->getFieldDefinitions($entity_type_id, $bundle)[$field_name];
 
-        if ($instance instanceof FieldConfigInterface) {
+        // Only fields with an unlimited cardinality can be synchronized.
+        if ($instance instanceof FieldConfigInterface &&
+          $instance->getFieldStorageDefinition()->getCardinality() == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
           $instance_target_bundle = $this->getTargetBundles($instance);
           if (in_array($target_bundle, $instance_target_bundle)) {
             $data['entity_type'] = $instance->getTargetEntityTypeId();
