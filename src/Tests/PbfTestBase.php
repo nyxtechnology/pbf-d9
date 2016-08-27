@@ -426,6 +426,56 @@ class PbfTestBase extends WebTestBase {
   }
 
   /**
+   * Helper function to create and attach a Pbf Node field synchronized.
+   *
+   * @param string $field_name
+   *   The field name to create and attach on article and user.
+   * @param string $group_field_name
+   *   The field name to create and attach on group.
+   * @param array $widget_settings
+   *   The widget form settings.
+   */
+  protected function attachPbfSynchronizedFields($field_name, $group_field_name, $widget_settings = []) {
+    // Add a pbf field to the article content type which reference group.
+    $handler_settings = array(
+      'target_bundles' => array(
+        'group' => 'group',
+      ),
+      'auto_create' => FALSE,
+    );
+    $this->createPbfField('node', 'article', $field_name, 'Content of group', 'node', 'default', $handler_settings, -1);
+    // Add a pbf field to user entity which reference group.
+    $this->createPbfField('user', 'user', $field_name, 'Member of group', 'node', 'default', $handler_settings, -1);
+    // Add a pbf field to group content type which reference user.
+    $handler_settings = array(
+      'target_bundles' => array(
+        'user' => 'user',
+      ),
+      'auto_create' => FALSE,
+    );
+    $this->createPbfField('node', 'group', $group_field_name, 'Group members', 'user', 'default', $handler_settings, -1);
+
+    // Set the form display.
+    $settings = $widget_settings + [
+      'match_operator' => 'CONTAINS',
+      'size' => 30,
+      'placeholder' => '',
+    ];
+    $this->setFormDisplay('node.article.default', 'node', 'article', 'default', $field_name, 'pbf_widget', $settings);
+    $this->setFormDisplay('node.group.default', 'node', 'group', 'default', $group_field_name, 'pbf_widget', $settings);
+    $this->setFormDisplay('user.user.default', 'user', 'user', 'default', $field_name, 'pbf_widget', $settings);
+
+    // Set the view display.
+    $settings = [
+      'link' => TRUE,
+    ];
+    $this->setViewDisplay('node.article.default', 'node', 'article', 'default', $field_name, 'pbf_formatter_default', $settings);
+    $this->setViewDisplay('node.group.default', 'node', 'group', 'default', $group_field_name, 'pbf_formatter_default', $settings);
+    $this->setViewDisplay('user.user.default', 'user', 'user', 'default', $field_name, 'pbf_formatter_default', $settings);
+
+  }
+
+  /**
    * Attach Pbf fields which reference taxonomy terms.
    *
    * @param \Drupal\taxonomy\VocabularyInterface $vocabulary
@@ -576,6 +626,46 @@ class PbfTestBase extends WebTestBase {
     return $this->drupalCreateNode($values);
   }
 
+  /**
+   * Create an group with value for Pbf field.
+   *
+   * @param string $title
+   *   The content title.
+   * @param string $field_name
+   *   The Pbf field name to populate.
+   * @param int|string $target_id
+   *   The target id of Pbf field.
+   * @param int $grant_public
+   *   The grant public value.
+   * @param int $grant_view
+   *   The grant view value.
+   * @param int $grant_update
+   *   The grant update value.
+   * @param int $grant_delete
+   *   The grant delete value.
+   *
+   * @return \Drupal\node\NodeInterface
+   *   The node created.
+   */
+  protected function createSimpleGroup($title, $field_name = '', $target_id = NULL, $grant_public = 1, $grant_view = 0, $grant_update = 0, $grant_delete = 0) {
+    $values = array(
+      'type' => 'group',
+      'title' => $title,
+      'body' => [
+        'value' => 'Content body for ' . $title,
+      ],
+    );
+    if ($field_name) {
+      $values[$field_name] = [
+        'target_id' => $target_id,
+        'grant_public' => $grant_public,
+        'grant_view' => $grant_view,
+        'grant_update' => $grant_update,
+        'grant_delete' => $grant_delete,
+      ];
+    }
+    return $this->drupalCreateNode($values);
+  }
 
   /**
    * Create a Node with multiple Pbf fields filled.

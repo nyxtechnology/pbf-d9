@@ -237,7 +237,7 @@ function pbf_entity_delete(EntityInterface $entity) {
     $config->save();
   }
   if ($entity instanceof FieldableEntityInterface) {
-//    \Drupal::service('pbf.synchronize')->synchronize('delete', $entity);
+    \Drupal::service('pbf.synchronize')->synchronize('delete', $entity);
   }
 }
 
@@ -253,7 +253,7 @@ function pbf_entity_insert(EntityInterface $entity) {
     $config->save();
   }
   if ($entity instanceof FieldableEntityInterface) {
-//    \Drupal::service('pbf.synchronize')->synchronize('insert', $entity);
+    \Drupal::service('pbf.synchronize')->synchronize('insert', $entity);
   }
 }
 
@@ -262,7 +262,7 @@ function pbf_entity_insert(EntityInterface $entity) {
  */
 function pbf_entity_update(EntityInterface $entity) {
   if ($entity instanceof FieldableEntityInterface) {
-//    \Drupal::service('pbf.synchronize')->synchronize('update', $entity);
+    \Drupal::service('pbf.synchronize')->synchronize('update', $entity);
   }
 }
 

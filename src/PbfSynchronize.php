@@ -221,9 +221,12 @@ class PbfSynchronize implements PbfSynchronizeInterface {
   protected function update($target_entity_type_id, FieldConfigInterface $target_field, EntityInterface $entity, FieldConfigInterface $field) {
     $entity_original = isset($entity->original) ? $entity->original : $entity;
     $target_field_name = $target_field->getName();
+    $target_ids = $this->getReferenceIds($entity, $field);
+    // Param added not used. We synchronize always the referenced entities.
     $added = array_diff($this->getReferenceIds($entity, $field), $this->getReferenceIds($entity_original, $field));
-    if ($added) {
-      $target_entities = $this->entityTypeManager->getStorage($target_entity_type_id)->loadMultiple($added);
+    // We synchronize all targeted entities.
+    if ($target_ids) {
+      $target_entities = $this->entityTypeManager->getStorage($target_entity_type_id)->loadMultiple($target_ids);
       /** @var \Drupal\Core\Entity\FieldableEntityInterface $target_entity */
       foreach ($target_entities as $target_entity) {
         $ids_referenced_from_target = $this->getReferenceIds($target_entity, $target_field);
@@ -236,6 +239,8 @@ class PbfSynchronize implements PbfSynchronizeInterface {
       }
     }
 
+    // If some entities referenced are removed, we removed the
+    // reference to the entity from these entities.
     $deleted = array_diff($this->getReferenceIds($entity_original, $field), $this->getReferenceIds($entity, $field));
     if ($deleted) {
       $target_entities = $this->entityTypeManager->getStorage($target_entity_type_id)->loadMultiple($deleted);
