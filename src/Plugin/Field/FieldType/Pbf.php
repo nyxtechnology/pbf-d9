@@ -144,7 +144,7 @@ class Pbf extends EntityReferenceItem {
     $form['synchronization'] = [
       '#type' => 'details',
       '#title' => $this->t('Synchronization'),
-      '#description' => $this->t('EXPERIMENTAL - UNDER ACTIVE DEVELOPMENT'),
+      '#description' => '',
       '#open' => TRUE,
       '#tree' => TRUE,
       '#process' => [[get_class($this), 'formProcessMergeParent']],
