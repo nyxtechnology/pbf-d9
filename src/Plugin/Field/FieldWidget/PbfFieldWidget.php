@@ -54,7 +54,7 @@ class PbfFieldWidget extends EntityReferenceAutocompleteWidget {
         '#default_value' => $default_value_key,
         '#return_value' => 1,
         '#empty' => 0,
-        '#weight' => 2,
+        '#weight' => $delta + 1,
         '#access' => $this->getSetting('grant_global') ? FALSE : TRUE,
       ];
 
