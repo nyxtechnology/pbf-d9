@@ -2,4 +2,4 @@ name: Permissions by field
 type: module
 description: Manage access entity by field
 core: 8.x
-package: Custom
+package: 'Access control'
