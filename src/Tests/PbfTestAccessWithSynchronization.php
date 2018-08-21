@@ -185,7 +185,7 @@ class PbfTestAccessWithSynchronization extends PbfTestBase {
     $edit = [
       $this->group_fieldname . '[0][target_id]' => $this->normalUser->getDisplayName() . ' (' . $this->normalUser->id() . ')',
     ];
-    $this->drupalPostForm('/node/' . $this->group1->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostForm('/node/' . $this->group1->id() . '/edit', $edit, t('Save'));
 
     $this->drupalGet("user/{$this->normalUser->id()}");
     $this->assertLink($this->group1->getTitle());
@@ -213,7 +213,7 @@ class PbfTestAccessWithSynchronization extends PbfTestBase {
       $this->group_fieldname . '[0][target_id]' => $this->normalUser->getDisplayName() . ' (' . $this->normalUser->id() . ')',
       $this->group_fieldname . '[1][target_id]' => $this->otherUser->getDisplayName() . ' (' . $this->otherUser->id() . ')',
     ];
-    $this->drupalPostForm('/node/' . $this->group1->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostForm('/node/' . $this->group1->id() . '/edit', $edit, t('Save'));
     $this->drupalGet("user/{$this->otherUser->id()}");
     $this->assertLink($this->group1->getTitle());
 
@@ -268,7 +268,7 @@ class PbfTestAccessWithSynchronization extends PbfTestBase {
       $this->group_fieldname . '[0][target_id]' => $this->normalUser->getDisplayName() . ' (' . $this->normalUser->id() . ')',
       $this->group_fieldname . '[1][target_id]' => $this->otherUser->getDisplayName() . ' (' . $this->otherUser->id() . ')',
     ];
-    $this->drupalPostForm('/node/' . $this->group1->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostForm('/node/' . $this->group1->id() . '/edit', $edit, t('Save'));
     $this->drupalGet("user/{$this->otherUser->id()}");
     $this->assertLink($this->group1->getTitle());
 

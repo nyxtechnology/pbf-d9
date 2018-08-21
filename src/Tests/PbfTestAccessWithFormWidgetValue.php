@@ -110,7 +110,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     $edit = [
       $this->fieldname . '[0][target_id]' => $this->group1->getTitle() . ' (' . $this->group1->id() . ')',
     ];
-    $this->drupalPostForm('/node/' . $this->article1->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostForm('/node/' . $this->article1->id() . '/edit', $edit, t('Save'));
     $this->assertText(t('has been updated'));
     $this->assertResponse(200);
     $this->drupalGet("node/{$this->article1->id()}");
@@ -119,7 +119,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     $edit = [
       $this->fieldname . '[0][target_id]' => $this->group1->getTitle() . ' (' . $this->group1->id() . ')',
     ];
-    $this->drupalPostForm('/node/' . $this->article2->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostForm('/node/' . $this->article2->id() . '/edit', $edit, t('Save'));
     $this->assertText(t('has been updated'));
     $this->assertResponse(200);
     $this->drupalGet("node/{$this->article1->id()}");
@@ -165,7 +165,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     $edit = [
       $this->fieldname . '[0][target_id]' => $this->group1->getTitle() . ' (' . $this->group1->id() . ')',
     ];
-    $this->drupalPostForm('/node/' . $this->article1->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostForm('/node/' . $this->article1->id() . '/edit', $edit, t('Save'));
     $this->assertText(t('has been updated'));
     $this->assertResponse(200);
     $this->drupalGet("node/{$this->article1->id()}");
@@ -174,7 +174,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     $edit = [
       $this->fieldname . '[0][target_id]' => $this->group1->getTitle() . ' (' . $this->group1->id() . ')',
     ];
-    $this->drupalPostForm('/node/' . $this->article2->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostForm('/node/' . $this->article2->id() . '/edit', $edit, t('Save'));
     $this->assertText(t('has been updated'));
     $this->assertResponse(200);
     $this->drupalGet("node/{$this->article1->id()}");
@@ -253,7 +253,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     $edit = [
       $this->fieldname . '[0][target_id]' => $this->group1->getTitle() . ' (' . $this->group1->id() . ')',
     ];
-    $this->drupalPostForm('/node/' . $this->article1->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostForm('/node/' . $this->article1->id() . '/edit', $edit, t('Save'));
     $this->assertText(t('has been updated'));
     $this->assertResponse(200);
     $this->drupalGet("node/{$this->article1->id()}");
@@ -262,7 +262,7 @@ class PbfTestAccessWithFormWidgetValue extends PbfTestBase {
     $edit = [
       $this->fieldname . '[0][target_id]' => $this->group1->getTitle() . ' (' . $this->group1->id() . ')',
     ];
-    $this->drupalPostForm('/node/' . $this->article2->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostForm('/node/' . $this->article2->id() . '/edit', $edit, t('Save'));
     $this->assertText(t('has been updated'));
     $this->assertResponse(200);
     $this->drupalGet("node/{$this->article2->id()}");
