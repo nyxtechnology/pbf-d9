@@ -80,7 +80,7 @@ class PbfFieldWidget extends EntityReferenceAutocompleteWidget {
       If you want to apply custom permissions for this node, permissions related 
       to the entity referenced, uncheck public option, 
       and then choose relevant permissions. If none of custom permissions are 
-      checked, only the node\'s author will be able to access to the node.'),
+      checked, only the node\'s author will have access to the node.'),
       '#attributes' => ['class' => ['description', 'pbf-help']],
       '#weight' => 5,
       '#access' => $this->getSetting('grant_global') ? FALSE : TRUE,
