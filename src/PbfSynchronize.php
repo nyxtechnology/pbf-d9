@@ -2,9 +2,9 @@
 
 namespace Drupal\pbf;
 
-use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\field\FieldConfigInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
@@ -17,30 +17,34 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 class PbfSynchronize implements PbfSynchronizeInterface {
 
   /**
-   * Drupal\Core\Entity\EntityFieldManager definition.
+   * Drupal\Core\Entity\EntityFieldManagerInterface definition.
    *
-   * @var \Drupal\Core\Entity\EntityFieldManager
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
   protected $entityFieldManager;
 
   /**
-   * Drupal\Core\Entity\EntityTypeManager definition.
+   * Drupal\Core\Entity\EntityTypeManagerInterface definition.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManager
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
-   * Drupal\Core\Config\ConfigFactory definition.
+   * Drupal\Core\Config\ConfigFactoryInterface definition.
    *
-   * @var \Drupal\Core\Config\ConfigFactory
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
 
   /**
-   * Constructor.
+   * PbfSynchronize constructor.
+   *
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    */
-  public function __construct(EntityFieldManager $entity_field_manager, EntityTypeManager $entity_type_manager, ConfigFactory $config_factory) {
+  public function __construct(EntityFieldManagerInterface $entity_field_manager, EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $config_factory) {
     $this->entityFieldManager = $entity_field_manager;
     $this->entityTypeManager = $entity_type_manager;
     $this->configFactory = $config_factory;
