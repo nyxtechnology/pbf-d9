@@ -361,3 +361,12 @@ function pbf_field_config_delete(FieldConfigInterface $entity) {
     }
   }
 }
+
+/**
+ * Implements hook_field_ui_preconfigured_options_alter().
+ */
+function pbf_field_ui_preconfigured_options_alter(array &$options, $field_type) {
+  if ($field_type === 'pbf') {
+    $options = [];
+  }
+}
