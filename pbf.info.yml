@@ -1,5 +1,7 @@
 name: Permissions by field
 type: module
 description: Manage access entity by field
-core: 8.x || 9.x
+core: 8.x
 package: 'Access control'
+
+core_version_requirement: ^8 || ^9
